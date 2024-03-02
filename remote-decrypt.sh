@@ -27,7 +27,7 @@ volume_is_mounted() {
   dmsetup ls | grep "$volume_name"
 }
 
-mount_volume() {
+decrypt_volume() {
   local volume_name="$1"
   local underlying_volume="$2"
   local key="$3"
@@ -40,5 +40,6 @@ do
   sleep "$sleep_for_seconds"
   [[ volume_is_mounted "$VOLUME_NAME" ]] && continue
   [[ -z "$key_file" ]] && key_file=$(download_key "$URL")
-  [[ -n "$key_file" ]] && mount_volume "$VOLUME_NAME" "$DEVICE" "$key_file"
+  [[ ! -f "$key_file" ]] && "Downloading key failed, retrying in ${sleep_for_seconds}s" && continue
+  decrypt_volume "$VOLUME_NAME" "$DEVICE" "$key_file"
 done
