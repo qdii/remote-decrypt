@@ -11,6 +11,7 @@
 # Originally it is empty, but once the key has been downloaded from the
 # internet, the path to the file is stored there.
 key_file=""
+sleep_for_seconds=60
 
 download_key() {
   local url="$1"
@@ -36,7 +37,7 @@ mount_volume() {
 
 while true
 do
-  sleep 60
+  sleep "$sleep_for_seconds"
   [[ volume_is_mounted "$VOLUME_NAME" ]] && continue
   [[ -z "$key_file" ]] && key_file=$(download_key "$URL")
   [[ -n "$key_file" ]] && mount_volume "$VOLUME_NAME" "$DEVICE" "$key_file"
