@@ -1,0 +1,15 @@
+[Unit]
+Description=Decrypts and mounts a LUKS-encrypted volume using a key fetched from a URL
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Environment=URL=https://example.com/key.data
+Environment=DEVICE=/dev/sda1
+Environment=VOLUME_NAME=my_volume
+ExecStart=remote-decrypt
+Restart=always
+RestartSec=60
+Type=simple
