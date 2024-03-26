@@ -16,9 +16,8 @@ sleep_for_seconds=60
 download_key() {
   local url="$1"
 
-  key_file=$(mktemp -f)
-  wget -O "$key_file" "$url"
-  echo "$key_file"
+  key_file=$(mktemp)
+  wget -O "$key_file" "$url" && echo "$key_file" || echo ""
 }
 
 volume_is_mounted() {
@@ -32,14 +31,16 @@ decrypt_volume() {
   local underlying_volume="$2"
   local key="$3"
 
-  cryptsetup luksOpen -k "$key" "$underlying_volume" "$volume_name"
+  echo "Decrypting volume"
+  cryptsetup luksOpen --key-file "$key" "$underlying_volume" "$volume_name"
 }
 
 while true
 do
   sleep "$sleep_for_seconds"
-  [[ volume_is_mounted "$VOLUME_NAME" ]] && continue
-  [[ -z "$key_file" ]] && key_file=$(download_key "$URL")
+  volume_is_mounted "$VOLUME_NAME" && continue
+  [[ -z "$key_file" ]] && echo "Downloading key" && key_file=$(download_key "$URL")
   [[ ! -f "$key_file" ]] && "Downloading key failed, retrying in ${sleep_for_seconds}s" && continue
   decrypt_volume "$VOLUME_NAME" "$DEVICE" "$key_file"
+  volume_is_mounted "$VOLUME_NAME" && echo "Volume is mounted, deleting key." && rm "$key_file"
 done
