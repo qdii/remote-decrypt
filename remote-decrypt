@@ -6,6 +6,10 @@
 #   a LUKS-formatted file system.
 # - VOLUME_NAME: the name of the volume that will be created. It contains
 #   the deciphered data.
+# Optionally, to perform Basic Authentication on the website, the following
+# variables can be set:
+# - USERNAME
+# - PASSWORD
 
 # Stores the path to the key file used to decrypt the data volume.
 # Originally it is empty, but once the key has been downloaded from the
@@ -17,7 +21,7 @@ download_key() {
   local url="$1"
 
   key_file=$(mktemp)
-  wget -O "$key_file" "$url" && echo "$key_file" || echo ""
+  wget -O "$key_file" --user="$USERNAME" --password="$PASSWORD" "$url" && echo "$key_file" || echo ""
 }
 
 volume_is_mounted() {
